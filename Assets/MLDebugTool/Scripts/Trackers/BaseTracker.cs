@@ -15,18 +15,14 @@ namespace MLDebugTool.Scripts.Trackers
         protected const string COLOR_TEXT_START = "<color=#{0}>";
         protected const string COLOR_TEXT_END = "</color>";
         
-        protected virtual float UpdateInterval => 0.1f;
-
         protected readonly MlDebugTool mlDebugTool;
         private readonly Text counterText;
-        
         protected StringBuilder text;
         protected string colorCached;
         private bool isInitialized;
         private bool isActivated;
         protected bool dirty;
-        private Coroutine updateCoroutine;
-        private WaitForSeconds cachedWaitForSeconds;
+       
         
         /// <summary>
         /// Sets the reference to ml debug tool and subscribes to its events
@@ -80,19 +76,7 @@ namespace MLDebugTool.Scripts.Trackers
         /// <summary>
         /// Method for overriden logic on counter activation
         /// </summary>
-        protected virtual void ActivationActions()
-        {
-            // Caches wait for second update interval
-            CacheWaitForSeconds();
-        }
-        
-        /// <summary>
-        /// Caches the wait for seconds update interval
-        /// </summary>
-        private void CacheWaitForSeconds()
-        {
-            cachedWaitForSeconds = new WaitForSeconds(UpdateInterval);
-        }
+        protected virtual void ActivationActions() { }
         
         /// <summary>
         /// Method for overriden logic on counter initialization.
@@ -101,38 +85,11 @@ namespace MLDebugTool.Scripts.Trackers
         protected virtual void InitActions()
         {
             isInitialized = true;
-            
-            // Starts the update coroutine
-            StartUpdateCoroutine();
-        }
-        
-        /// <summary>
-        /// Starts the update coroutine and saves it to updateCoroutine
-        /// </summary>
-        private void StartUpdateCoroutine()
-        {
-            updateCoroutine = mlDebugTool.StartCoroutine(UpdateCounter());
         }
 
         #endregion
 
         #region Update
-
-        /// <summary>
-        /// Update counter routine that waits for cached update interval and invokes the update and display method
-        /// Must be overriden for more complex behaviour
-        /// </summary>
-        /// <returns></returns>
-        protected virtual IEnumerator UpdateCounter()
-        {
-            while (true)
-            {
-                yield return cachedWaitForSeconds;
-
-                // Updates and displays the zone
-                UpdateValueAndDisplay(false);
-            }
-        }
         
         /// <summary>
         /// Invokes the update value method and displays the result text to the field
@@ -211,22 +168,7 @@ namespace MLDebugTool.Scripts.Trackers
         /// <summary>
         /// Method for overriden logic on counter deactivation
         /// </summary>
-        protected virtual void DeactivationActions()
-        {
-            // Stops the update coroutine
-            StopUpdateCoroutine();
-        }
-        
-        /// <summary>
-        /// If updateCoroutine is exist, stops the update coroutine
-        /// </summary>
-        private void StopUpdateCoroutine()
-        {
-            if(updateCoroutine != null && mlDebugTool != null)
-            {
-                mlDebugTool.StopCoroutine(updateCoroutine);
-            }
-        }
+        protected virtual void DeactivationActions() { }
         
         /// <summary>
         /// Simulates the OnDestroy method

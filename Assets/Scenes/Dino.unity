@@ -387,7 +387,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   environment: {fileID: 1219751169062521783, guid: 1853cf0b19efb0d4eab24ee3574d92dd, type: 3}
   safetyDistance: 50
-  defaultNumEnvironments: 10
+  defaultNumEnvironments: 1
   defaultMultiScene: 0
 --- !u!4 &1209471282
 Transform:

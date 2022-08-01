@@ -7,12 +7,13 @@ namespace MLDebugTool.Scripts.Trackers
     /// Engine information tracker
     /// Any statistic related to engine or game play can be updated here
     /// </summary>
-    public class EngineTracker : BaseTracker
+    public class EngineTracker : UpdatableTracker
     {
         private const string LINE_START_TIMESCALE = "Timescale: x{0}";
 
         private float lastTimeScaleValue = 1;
-        
+        protected override float UpdateInterval => 1f;
+
         public EngineTracker(MlDebugTool reference, Text counterText) : base(reference, counterText) { }
 
         protected override void ActivationActions()
@@ -23,9 +24,10 @@ namespace MLDebugTool.Scripts.Trackers
             TimeScaleUtility.OnTimescaleChanged -= HandleTimeScaleChanged;
             TimeScaleUtility.OnTimescaleChanged += HandleTimeScaleChanged;
 
+            // Initial display of timescale value
             if (TimeScaleUtility.Instance != null)
             {
-                HandleTimeScaleChanged(TimeScaleUtility.Instance);
+                HandleTimeScaleChanged(TimeScaleUtility.Instance, Time.timeScale);
             }
         }
 
@@ -35,15 +37,19 @@ namespace MLDebugTool.Scripts.Trackers
             TimeScaleUtility.OnTimescaleChanged -= HandleTimeScaleChanged;
         }
 
-        private void HandleTimeScaleChanged(TimeScaleUtility timeScale)
+        private void HandleTimeScaleChanged(TimeScaleUtility timeScale, float scale)
         {
-            dirty = true;
-            lastTimeScaleValue = TimeScaleUtility.Instance.TargetTimeScale;
-            UpdateValueAndDisplay(false);
+            UpdateValueAndDisplay(true);
         }
 
         protected override void UpdateValue(bool force)
         {
+            if (lastTimeScaleValue != Time.timeScale || force)
+            {
+                lastTimeScaleValue = Time.timeScale;
+                dirty = true;
+            }
+            
             if (dirty || force)
             {
                 //Resets the text builder length

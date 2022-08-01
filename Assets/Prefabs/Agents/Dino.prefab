@@ -179,5 +179,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b7681f2743fd4159a5c8aebdf92d9761, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  DecisionPeriod: 10
-  TakeActionsBetweenDecisions: 0
+  decisionPeriod: 25
+  takeActionsBetweenDecisions: 0

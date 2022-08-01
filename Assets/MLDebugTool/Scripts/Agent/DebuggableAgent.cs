@@ -6,9 +6,9 @@ namespace MLDebugTool.Scripts.Agent
 {
     public abstract class DebuggableAgent : Unity.MLAgents.Agent
     {
-        public static event Action<DebuggableAgent> OnAgentEnabled;
-        public static event Action<DebuggableAgent> OnAgentDisabled;
-        public static event Action<DebuggableAgent> OnAgentDestroyed;
+        public static event Action<DebuggableAgent> OnAnyAgentEnabled;
+        public static event Action<DebuggableAgent> OnAnyAgentDisabled;
+        public static event Action<DebuggableAgent> OnAnyAgentDestroyed;
 
         public event Action<DebuggableAgent, ActionBuffers> OnAgentDecisionRequested;
         public event Action<DebuggableAgent, Dictionary<string, string>> OnAgentObservationsCollected;
@@ -18,18 +18,18 @@ namespace MLDebugTool.Scripts.Agent
         protected override void OnEnable()
         {
             base.OnEnable();
-            OnAgentEnabled?.Invoke(this);
+            OnAnyAgentEnabled?.Invoke(this);
         }
 
         protected override void OnDisable()
         {
             base.OnDisable();
-            OnAgentDisabled?.Invoke(this);
+            OnAnyAgentDisabled?.Invoke(this);
         }
 
         protected virtual void OnDestroy()
         {
-            OnAgentDestroyed?.Invoke(this);
+            OnAnyAgentDestroyed?.Invoke(this);
         }
 
         public override void OnActionReceived(ActionBuffers actions)

@@ -2,7 +2,7 @@
 using System.Collections;
 using UnityEngine;
 
-namespace Agent
+namespace Dino
 {
     [Serializable]
     public class DelayedJump

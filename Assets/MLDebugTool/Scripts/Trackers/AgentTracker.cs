@@ -86,7 +86,7 @@ namespace MLDebugTool.Scripts.Trackers
             observationsString.Length = 0;
             StopFadeRoutine();
             decisionText.alpha = 0;
-            UpdateValue(true);
+            UpdateValueAndDisplay(true);
         }
 
         private void SubscribeToEvents()
@@ -158,9 +158,10 @@ namespace MLDebugTool.Scripts.Trackers
 
             if (pauseOnDecision)
             {
-                UpdateValueAndDisplay(true);
                 TimeScaleUtility.Instance.SetTimeScale(0);
             }
+            
+            UpdateValueAndDisplay(false);
         }
 
         private void HandleDebuggableAgentObservationsCollected(DebuggableAgent debuggableAgent, Dictionary<string, string> observations)
@@ -177,6 +178,7 @@ namespace MLDebugTool.Scripts.Trackers
             }
 
             dirty = true;
+            UpdateValueAndDisplay(false);
         }
         
         protected override void UpdateValue(bool force)

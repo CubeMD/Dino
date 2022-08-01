@@ -21,11 +21,6 @@ namespace Obstacles
         
         private Coroutine spawningRoutine;
 
-        private void Start()
-        {
-            spawningRoutine = StartCoroutine(SpawningRoutine());
-        }
-
         private void OnDestroy()
         {
             StopSpawningRoutine();

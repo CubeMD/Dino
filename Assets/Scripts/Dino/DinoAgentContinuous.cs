@@ -6,7 +6,7 @@ using Unity.MLAgents.Sensors;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
-namespace Agent
+namespace Dino
 {
     public class DinoAgentContinuous : DinoAgent
     {

@@ -1,4 +1,6 @@
-using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using MLDebugTool.Scripts.Agent;
 using Obstacles;
@@ -7,7 +9,7 @@ using Unity.MLAgents.Actuators;
 using Unity.MLAgents.Sensors;
 using UnityEngine;
 
-namespace Agent
+namespace Dino
 {
     [RequireComponent(typeof(Rigidbody))]
     public class DinoAgent : DebuggableAgent
@@ -24,9 +26,18 @@ namespace Agent
         protected float timeOfLastJump;
         protected float realTimeOfEpisodeStart;
         protected float timeOfEpisodeStart;
+        protected float realTimeOfLastDecision;
+        protected float timeOfLastDecision;
+        protected Coroutine eachRealSecondRoutine;
 
+        private readonly Dictionary<string, float> episodeStats = new Dictionary<string, float>();
+        private int numDecisions;
+        private int numDecisionsTotal;
+        private float gameplayTimeTotal;
+        private int numEpisodesTotal;
         private Rigidbody rb;
         private StringBuilder stringBuilder = new StringBuilder(20);
+        
 
         protected virtual void Awake()
         {
@@ -39,6 +50,7 @@ namespace Agent
             }
 
             obstacleGenerator.OnObstacleDestroyedOutOfBounds += HandleObstacleDestroyedOutOfBounds;
+            eachRealSecondRoutine = StartCoroutine(EachRealSecondRoutine());
         }
 
         protected override void OnDestroy()
@@ -47,6 +59,7 @@ namespace Agent
             {
                 obstacleGenerator.OnObstacleDestroyedOutOfBounds -= HandleObstacleDestroyedOutOfBounds;
             }
+            StopCoroutine(eachRealSecondRoutine);
             
             base.OnDestroy();
         }
@@ -58,12 +71,19 @@ namespace Agent
             transform.position = currentPosition;
             
             rb.velocity = Vector3.zero;
-            timeOfLastJump = Time.time - DURATION_OF_JUMP;
+            timeOfLastJump = Time.time;
+            numDecisions = 0;
             
             obstacleGenerator.ResetObstacles();
 
-            realTimeOfEpisodeStart = Time.realtimeSinceStartup;
-            timeOfEpisodeStart = Time.time;
+            realTimeOfEpisodeStart = realTimeOfLastDecision = Time.realtimeSinceStartup;
+            timeOfEpisodeStart = timeOfLastDecision = Time.time;
+
+            List<string> keys = episodeStats.Keys.ToList();
+            foreach (string key in keys)
+            {
+                episodeStats[key] = 0;
+            }
         }
 
         private void Update()
@@ -81,7 +101,7 @@ namespace Agent
 
         private void HandleObstacleDestroyedOutOfBounds(ObstacleGenerator og)
         {
-            //Academy.Instance.StatsRecorder.Add("SuccessfulJumpOvers", 1f, StatAggregationMethod.Sum);
+            AddEpisodeStat("SuccessfulJumpOvers");
             AddReward(1f);
         }
 
@@ -113,9 +133,10 @@ namespace Agent
 
         public override void OnActionReceived(ActionBuffers actions)
         {
-            // Academy.Instance.StatsRecorder.Add("TimeTotal", Time.time, StatAggregationMethod.Sum);
-            // Academy.Instance.StatsRecorder.Add("FramesTotal", Time.frameCount, StatAggregationMethod.Sum);
-            // Academy.Instance.StatsRecorder.Add("Decisions", 1f, StatAggregationMethod.Sum);
+            numDecisions++;
+            numDecisionsTotal++;
+            realTimeOfLastDecision = Time.realtimeSinceStartup;
+            timeOfLastDecision = Time.time;
             
             if (actions.DiscreteActions[0] == 1)
             {
@@ -127,15 +148,15 @@ namespace Agent
 
         protected void TryJump()
         {
-            // Academy.Instance.StatsRecorder.Add("TryJumps", 1f, StatAggregationMethod.Sum);
+            AddEpisodeStat("AttemptedJumps");
             if (Time.time - timeOfLastJump >= DURATION_OF_JUMP)
             {
                 Jump();
             }
             else
             {
-                //Academy.Instance.StatsRecorder.Add("JumpFails", 1f, StatAggregationMethod.Sum);
                 AddReward(-0.1f);
+                AddEpisodeStat("InvalidJumps");
             }
         }
         
@@ -145,7 +166,7 @@ namespace Agent
             rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
             timeOfLastJump = Time.time;
             AddReward(-0.01f);
-            // Academy.Instance.StatsRecorder.Add("Jumps", 1f, StatAggregationMethod.Sum);
+            AddEpisodeStat("ExecutedJumps");
         }
     
         private void OnCollisionEnter(Collision collision)
@@ -160,28 +181,74 @@ namespace Agent
         {
             if (other.CompareTag(obstacleTag))
             {
-                AddRealAndGameTimeStats("Deaths");
+                numEpisodesTotal++;
+                gameplayTimeTotal += Time.time - timeOfEpisodeStart;
+                SendEndEpisodeStats();
                 AddReward(-1f);
                 EndEpisode();
             }
         }
+        
+        protected void AddEpisodeStat(string statName, float value = 1f)
+        {
+            if (episodeStats.ContainsKey(statName))
+            {
+                episodeStats[statName] += value;
+            }
+            else
+            {
+                episodeStats.Add(statName, value);
+            }
+        }
+        
+        protected void SendRealTimeAndEpisodeStats(string statName, float value = 1f)
+        {
+            SendEpisodeStat(statName, value);
+            SendRealTimeStat(statName, value);
+        }
 
-        protected void AddRealAndGameTimeStats(string statName, float value = 1f, StatAggregationMethod aggregationMethod = StatAggregationMethod.Sum)
+        protected void SendTotalStats()
         {
-            AddGameTimeStat(statName, value, aggregationMethod);
-            AddRealTimeStat(statName, value, aggregationMethod);
+            Academy.Instance.StatsRecorder.Add("Totals/GameplaySeconds", gameplayTimeTotal, StatAggregationMethod.Sum);
+            Academy.Instance.StatsRecorder.Add("Totals/Decisions", numDecisionsTotal, StatAggregationMethod.Sum);
+            Academy.Instance.StatsRecorder.Add("Totals/Episodes", numEpisodesTotal, StatAggregationMethod.Sum);
         }
         
-        protected void AddGameTimeStat(string statName, float value = 1f, StatAggregationMethod aggregationMethod = StatAggregationMethod.Sum)
+        protected void SendEpisodeStat(string statName, float value = 1f)
         {
-            stringBuilder.Clear().AppendFormat("GameTime/{0}", statName);
-            Academy.Instance.StatsRecorder.Add(stringBuilder.ToString(), value / (Time.time - timeOfEpisodeStart), aggregationMethod);
+            stringBuilder.Clear().AppendFormat("PerEpisode/{0}", statName);
+            Academy.Instance.StatsRecorder.Add(stringBuilder.ToString(), value, StatAggregationMethod.Histogram);
         }
         
-        protected void AddRealTimeStat(string statName, float value = 1f, StatAggregationMethod aggregationMethod = StatAggregationMethod.Sum)
+        protected void SendRealTimeStat(string statName, float value = 1f)
         {
-            stringBuilder.Clear().AppendFormat("RealTime/{0}", statName);
-            Academy.Instance.StatsRecorder.Add(stringBuilder.ToString(), value / (Time.realtimeSinceStartup - realTimeOfEpisodeStart), aggregationMethod);
+            stringBuilder.Clear().AppendFormat("PerRealSecond/{0}", statName);
+            Academy.Instance.StatsRecorder.Add(stringBuilder.ToString(), value / Time.realtimeSinceStartup, StatAggregationMethod.Sum);
+        }
+
+        protected IEnumerator EachRealSecondRoutine()
+        {
+            while (true)
+            {
+                yield return new WaitForSecondsRealtime(1f);
+                
+                SendRealTimeStat("Decisions", numDecisionsTotal);
+                SendRealTimeStat("GameplaySeconds", Time.time);
+                SendRealTimeStat("Episodes", numEpisodesTotal);
+                
+                SendTotalStats();
+            }
+        }
+
+        protected void SendEndEpisodeStats()
+        {
+            foreach (string key in episodeStats.Keys)
+            {
+                SendEpisodeStat(key, episodeStats[key]);
+            }
+            
+            SendEpisodeStat("Decisions", numDecisions);
+            SendEpisodeStat("GameplaySeconds", Time.time - timeOfEpisodeStart);
         }
     }
 }

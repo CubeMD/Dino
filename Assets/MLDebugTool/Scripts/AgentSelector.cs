@@ -13,17 +13,17 @@ namespace MLDebugTool.Scripts
         private readonly List<DebuggableAgent> activeAgents = new List<DebuggableAgent>();
 
         private void Awake()
-        {
-            DebuggableAgent.OnAgentEnabled += HandleAgentEnabled;
-            DebuggableAgent.OnAgentDisabled += HandleAgentDisabled;
-            DebuggableAgent.OnAgentDestroyed += HandleAgentDestroyed;
+        { 
+            DebuggableAgent.OnAnyAgentEnabled += HandleAnyAgentEnabled;
+            DebuggableAgent.OnAnyAgentDisabled += HandleAnyAgentDisabled;
+            DebuggableAgent.OnAnyAgentDestroyed += HandleAnyAgentDestroyed;
         }
 
-        private void OnDestroy()
+        private void OnDisable()
         {
-            DebuggableAgent.OnAgentEnabled -= HandleAgentEnabled;
-            DebuggableAgent.OnAgentDisabled -= HandleAgentDisabled;
-            DebuggableAgent.OnAgentDestroyed -= HandleAgentDestroyed;
+            DebuggableAgent.OnAnyAgentEnabled -= HandleAnyAgentEnabled;
+            DebuggableAgent.OnAnyAgentDisabled -= HandleAnyAgentDisabled;
+            DebuggableAgent.OnAnyAgentDestroyed -= HandleAnyAgentDestroyed;
         }
 
         private void Update()
@@ -42,9 +42,8 @@ namespace MLDebugTool.Scripts
 
         private void SetNewIndex(int index)
         {
-            if (index >= activeAgents.Count)
+            if (index >= activeAgents.Count || activeAgents.Count == 0 || index < 0)
             {
-                Debug.LogError($"No such agent exists. Index :{index}, agents amount {activeAgents.Count}");
                 return;
             }
 
@@ -54,7 +53,7 @@ namespace MLDebugTool.Scripts
 
         #region Handlers
 
-        private void HandleAgentEnabled(DebuggableAgent debuggableAgent)
+        private void HandleAnyAgentEnabled(DebuggableAgent debuggableAgent)
         {
             if (!activeAgents.Contains(debuggableAgent))
             {
@@ -66,7 +65,7 @@ namespace MLDebugTool.Scripts
             }
         }
 
-        private void HandleAgentDestroyed(DebuggableAgent debuggableAgent)
+        private void HandleAnyAgentDestroyed(DebuggableAgent debuggableAgent)
         {
             if (activeAgents.Contains(debuggableAgent))
             {
@@ -77,7 +76,7 @@ namespace MLDebugTool.Scripts
             SetNewIndex(newIndex);
         }
         
-        private void HandleAgentDisabled(DebuggableAgent debuggableAgent)
+        private void HandleAnyAgentDisabled(DebuggableAgent debuggableAgent)
         {
             if (activeAgents.Contains(debuggableAgent))
             {

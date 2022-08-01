@@ -27,7 +27,7 @@ namespace Tools
         private bool multiScene;
         private readonly List<PhysicsScene> spawnedPhysicsScenes = new List<PhysicsScene>(); 
         
-        private void Awake()
+        private void Start()
         {
             int numEnvironments = (int)Academy.Instance.EnvironmentParameters.GetWithDefault("environments_per_unity_process", defaultNumEnvironments);
             int multiSceneValue = (int)Academy.Instance.EnvironmentParameters.GetWithDefault("multi_scene", -1f);
