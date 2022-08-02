@@ -1,10 +1,5 @@
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using MLDebugTool.Scripts.Agent;
 using Obstacles;
-using Unity.MLAgents;
 using Unity.MLAgents.Actuators;
 using Unity.MLAgents.Sensors;
 using UnityEngine;
@@ -23,21 +18,9 @@ namespace Dino
         [SerializeField] protected string obstacleTag;
         [SerializeField] protected string floorTag;
         
-        protected float timeOfLastJump;
-        protected float realTimeOfEpisodeStart;
-        protected float timeOfEpisodeStart;
-        protected float realTimeOfLastDecision;
-        protected float timeOfLastDecision;
-        protected Coroutine eachRealSecondRoutine;
-
-        private readonly Dictionary<string, float> episodeStats = new Dictionary<string, float>();
-        private int numDecisions;
-        private int numDecisionsTotal;
-        private float gameplayTimeTotal;
-        private int numEpisodesTotal;
         private Rigidbody rb;
-        private StringBuilder stringBuilder = new StringBuilder(20);
-        
+        protected float timeOfLastJump;
+        private bool canJump;
 
         protected virtual void Awake()
         {
@@ -50,7 +33,6 @@ namespace Dino
             }
 
             obstacleGenerator.OnObstacleDestroyedOutOfBounds += HandleObstacleDestroyedOutOfBounds;
-            eachRealSecondRoutine = StartCoroutine(EachRealSecondRoutine());
         }
 
         protected override void OnDestroy()
@@ -59,38 +41,26 @@ namespace Dino
             {
                 obstacleGenerator.OnObstacleDestroyedOutOfBounds -= HandleObstacleDestroyedOutOfBounds;
             }
-            StopCoroutine(eachRealSecondRoutine);
-            
+
             base.OnDestroy();
         }
         
         public override void OnEpisodeBegin()
         {
+            RecordEpisodeStat("PerEpisode/GameplayTime", Time.time - timeOfEpisodeStart);
+            
             Vector3 currentPosition = transform.position;
             currentPosition.y = startHeight;
             transform.position = currentPosition;
             
             rb.velocity = Vector3.zero;
-            timeOfLastJump = Time.time;
-            numDecisions = 0;
-            
+            timeOfLastJump = Time.time - DURATION_OF_JUMP;
+            canJump = false;
             obstacleGenerator.ResetObstacles();
-
-            realTimeOfEpisodeStart = realTimeOfLastDecision = Time.realtimeSinceStartup;
-            timeOfEpisodeStart = timeOfLastDecision = Time.time;
-
-            List<string> keys = episodeStats.Keys.ToList();
-            foreach (string key in keys)
-            {
-                episodeStats[key] = 0;
-            }
+            
+            base.OnEpisodeBegin();
         }
-
-        private void Update()
-        {
-            AddReward(Time.deltaTime * 0.1f);
-        }
-
+        
         public override void Heuristic(in ActionBuffers actionsOut)
         {
             if (Input.GetKey(KeyCode.Space))
@@ -101,7 +71,7 @@ namespace Dino
 
         private void HandleObstacleDestroyedOutOfBounds(ObstacleGenerator og)
         {
-            AddEpisodeStat("SuccessfulJumpOvers");
+            RecordEpisodeStat("PerEpisode/SuccessfulJumpOvers");
             AddReward(1f);
         }
 
@@ -120,7 +90,7 @@ namespace Dino
             }
 
             float distanceObservation = observedDistance / LEVEL_WIDTH;
-            float jumpObservation = Mathf.Clamp01((Time.time - timeOfLastJump) / DURATION_OF_JUMP);
+            float jumpObservation = canJump ? 1 : Mathf.Clamp01((Time.time - timeOfLastJump) / DURATION_OF_JUMP);
             
             sensor.AddObservation(distanceObservation);
             sensor.AddObservation(jumpObservation);
@@ -133,10 +103,7 @@ namespace Dino
 
         public override void OnActionReceived(ActionBuffers actions)
         {
-            numDecisions++;
-            numDecisionsTotal++;
-            realTimeOfLastDecision = Time.realtimeSinceStartup;
-            timeOfLastDecision = Time.time;
+            AddReward((Time.time - timeOfLastDecision) * 0.1f);
             
             if (actions.DiscreteActions[0] == 1)
             {
@@ -148,15 +115,15 @@ namespace Dino
 
         protected void TryJump()
         {
-            AddEpisodeStat("AttemptedJumps");
-            if (Time.time - timeOfLastJump >= DURATION_OF_JUMP)
+            RecordEpisodeStat("PerEpisode/AttemptedJumps");
+            if (canJump)
             {
                 Jump();
             }
             else
             {
                 AddReward(-0.1f);
-                AddEpisodeStat("InvalidJumps");
+                RecordEpisodeStat("PerEpisode/InvalidJumps");
             }
         }
         
@@ -165,15 +132,16 @@ namespace Dino
             rb.velocity = Vector3.zero;
             rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
             timeOfLastJump = Time.time;
+            canJump = false;
             AddReward(-0.01f);
-            AddEpisodeStat("ExecutedJumps");
+            RecordEpisodeStat("PerEpisode/ExecutedJumps");
         }
     
         private void OnCollisionEnter(Collision collision)
         {
             if (collision.collider.CompareTag(floorTag))
             {
-                timeOfLastJump = Time.time - DURATION_OF_JUMP;
+                canJump = true;
             }
         }
 
@@ -181,74 +149,9 @@ namespace Dino
         {
             if (other.CompareTag(obstacleTag))
             {
-                numEpisodesTotal++;
-                gameplayTimeTotal += Time.time - timeOfEpisodeStart;
-                SendEndEpisodeStats();
                 AddReward(-1f);
                 EndEpisode();
             }
-        }
-        
-        protected void AddEpisodeStat(string statName, float value = 1f)
-        {
-            if (episodeStats.ContainsKey(statName))
-            {
-                episodeStats[statName] += value;
-            }
-            else
-            {
-                episodeStats.Add(statName, value);
-            }
-        }
-        
-        protected void SendRealTimeAndEpisodeStats(string statName, float value = 1f)
-        {
-            SendEpisodeStat(statName, value);
-            SendRealTimeStat(statName, value);
-        }
-
-        protected void SendTotalStats()
-        {
-            Academy.Instance.StatsRecorder.Add("Totals/GameplaySeconds", gameplayTimeTotal, StatAggregationMethod.Sum);
-            Academy.Instance.StatsRecorder.Add("Totals/Decisions", numDecisionsTotal, StatAggregationMethod.Sum);
-            Academy.Instance.StatsRecorder.Add("Totals/Episodes", numEpisodesTotal, StatAggregationMethod.Sum);
-        }
-        
-        protected void SendEpisodeStat(string statName, float value = 1f)
-        {
-            stringBuilder.Clear().AppendFormat("PerEpisode/{0}", statName);
-            Academy.Instance.StatsRecorder.Add(stringBuilder.ToString(), value, StatAggregationMethod.Histogram);
-        }
-        
-        protected void SendRealTimeStat(string statName, float value = 1f)
-        {
-            stringBuilder.Clear().AppendFormat("PerRealSecond/{0}", statName);
-            Academy.Instance.StatsRecorder.Add(stringBuilder.ToString(), value / Time.realtimeSinceStartup, StatAggregationMethod.Sum);
-        }
-
-        protected IEnumerator EachRealSecondRoutine()
-        {
-            while (true)
-            {
-                yield return new WaitForSecondsRealtime(1f);
-                
-                SendRealTimeStat("Decisions", numDecisionsTotal);
-                SendRealTimeStat("GameplaySeconds", Time.time);
-                SendRealTimeStat("Episodes", numEpisodesTotal);
-                
-                SendTotalStats();
-            }
-        }
-
-        protected void SendEndEpisodeStats()
-        {
-            foreach (string key in episodeStats.Keys)
-            {
-                SendEpisodeStat(key, episodeStats[key]);
-            }
-            
-            SendEpisodeStat("Decisions", numDecisions);
-            SendEpisodeStat("GameplaySeconds", Time.time - timeOfEpisodeStart);
         }
     }
 }

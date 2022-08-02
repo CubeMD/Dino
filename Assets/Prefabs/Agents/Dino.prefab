@@ -164,7 +164,7 @@ MonoBehaviour:
   MaxStep: 0
   obstacleGenerator: {fileID: 0}
   jumpForce: 10
-  startHeight: -6.12
+  startHeight: -3
   obstacleTag: Obstacle
   floorTag: Floor
 --- !u!114 &4810488153716500750
@@ -179,5 +179,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b7681f2743fd4159a5c8aebdf92d9761, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  decisionPeriod: 25
+  decisionPeriod: 10
   takeActionsBetweenDecisions: 0
