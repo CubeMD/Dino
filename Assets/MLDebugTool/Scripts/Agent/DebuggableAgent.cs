@@ -76,6 +76,11 @@ namespace MLDebugTool.Scripts.Agent
         
         public override void OnActionReceived(ActionBuffers actions)
         {
+            OnDecision(actions);
+        }
+
+        protected void OnDecision(ActionBuffers actions)
+        {
             OnAnyAgentDecisionRequested?.Invoke(this, Time.time - timeOfLastDecision);
             OnAgentDecisionRequested?.Invoke(this, actions);
             

@@ -137,7 +137,7 @@ MonoBehaviour:
     VectorActionDescriptions: []
     VectorActionSpaceType: 0
     hasUpgradedBrainParametersWithActionSpec: 1
-  m_Model: {fileID: 0}
+  m_Model: {fileID: 5022602860645237092, guid: 6701ad352f23b064e98dacc8f5591810, type: 3}
   m_InferenceDevice: 2
   m_BehaviorType: 0
   m_BehaviorName: Dino
@@ -179,5 +179,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b7681f2743fd4159a5c8aebdf92d9761, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  decisionPeriod: 10
+  decisionPeriod: 30
   takeActionsBetweenDecisions: 0

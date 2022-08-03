@@ -14,10 +14,11 @@ namespace Tools
         [Tooltip("The frequency with which the agent requests a decision. A DecisionPeriod " +
                  "of 10 means that the Agent will request a decision every 10 AcademySteps (FixedUpdates) or 5 timesPerSecond")]
         [SerializeField] private int decisionPeriod = 10;
-        
+        public int DecisionPeriod => decisionPeriod;
+
         [Tooltip("Indicates whether or not the agent will take an action during the Academy " +
-            "steps where it does not request a decision. Has no effect when DecisionPeriod " +
-            "is set to 1.")]
+                 "steps where it does not request a decision. Has no effect when DecisionPeriod " +
+                 "is set to 1.")]
         [SerializeField] private  bool takeActionsBetweenDecisions = false;
         
         private Agent agent;
@@ -90,7 +91,5 @@ namespace Tools
         {
             return takeActionsBetweenDecisions;
         }
-        
-
     }
 }

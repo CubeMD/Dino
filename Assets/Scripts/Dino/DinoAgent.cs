@@ -95,10 +95,11 @@ namespace Dino
             sensor.AddObservation(distanceObservation);
             sensor.AddObservation(jumpObservation);
             
-            observationsDebugSet.Clear();
             observationsDebugSet.Add("Distance", distanceObservation.ToString("0.000"));
             observationsDebugSet.Add("Jump", jumpObservation.ToString());
             BroadcastObservationsCollected();
+            
+            observationsDebugSet.Clear();
         }
 
         public override void OnActionReceived(ActionBuffers actions)
