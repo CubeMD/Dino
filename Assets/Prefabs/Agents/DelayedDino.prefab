@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &4822662333796473275
+--- !u!1 &8808844892487750604
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -8,54 +8,54 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 4822662333796473248}
-  - component: {fileID: 4822662333796473253}
-  - component: {fileID: 4822662333796473252}
-  - component: {fileID: 4822662333796473249}
-  - component: {fileID: 4822662333796473260}
-  - component: {fileID: 4810488153716500750}
+  - component: {fileID: 8808844892487750615}
+  - component: {fileID: 8808844892487750610}
+  - component: {fileID: 8808844892487750611}
+  - component: {fileID: 8808844892487750614}
+  - component: {fileID: 1277983760053986760}
+  - component: {fileID: 2478101849565633311}
   m_Layer: 0
-  m_Name: Dino
+  m_Name: DelayedDino
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &4822662333796473248
+--- !u!4 &8808844892487750615
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4822662333796473275}
+  m_GameObject: {fileID: 8808844892487750604}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 3, y: 3, z: 3}
   m_Children:
-  - {fileID: 4061974793921747178}
+  - {fileID: 2616355642591037976}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!135 &4822662333796473253
+--- !u!135 &8808844892487750610
 SphereCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4822662333796473275}
+  m_GameObject: {fileID: 8808844892487750604}
   m_Material: {fileID: 0}
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
   m_Radius: 0.5
   m_Center: {x: 0, y: 0, z: 0}
---- !u!54 &4822662333796473252
+--- !u!54 &8808844892487750611
 Rigidbody:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4822662333796473275}
+  m_GameObject: {fileID: 8808844892487750604}
   serializedVersion: 2
   m_Mass: 1
   m_Drag: 0
@@ -65,13 +65,13 @@ Rigidbody:
   m_Interpolate: 2
   m_Constraints: 122
   m_CollisionDetection: 1
---- !u!114 &4822662333796473249
+--- !u!114 &8808844892487750614
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4822662333796473275}
+  m_GameObject: {fileID: 8808844892487750604}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 5d1c4e0b1822b495aa52bc52839ecb30, type: 3}
@@ -81,13 +81,13 @@ MonoBehaviour:
     VectorObservationSize: 2
     NumStackedVectorObservations: 1
     m_ActionSpec:
-      m_NumContinuousActions: 0
+      m_NumContinuousActions: 1
       BranchSizes: 02000000
-    VectorActionSize: 02000000
+    VectorActionSize: 
     VectorActionDescriptions: []
-    VectorActionSpaceType: 0
+    VectorActionSpaceType: 1
     hasUpgradedBrainParametersWithActionSpec: 1
-  m_Model: {fileID: 5022602860645237092, guid: 57ec206636203d14e8a44d4192bcc57f, type: 3}
+  m_Model: {fileID: 5022602860645237092, guid: 5ccace03063f0fa45854a9ea518e901a, type: 3}
   m_InferenceDevice: 2
   m_BehaviorType: 0
   m_BehaviorName: Dino
@@ -96,16 +96,16 @@ MonoBehaviour:
   m_UseChildActuators: 1
   m_DeterministicInference: 0
   m_ObservableAttributeHandling: 0
---- !u!114 &4822662333796473260
+--- !u!114 &1277983760053986760
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4822662333796473275}
+  m_GameObject: {fileID: 8808844892487750604}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 29cfb61d632003041932637e24f48615, type: 3}
+  m_Script: {fileID: 11500000, guid: 942c1144f3d54adc9a7558ed08de0b9b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   agentParameters:
@@ -117,26 +117,26 @@ MonoBehaviour:
   startHeight: -3
   obstacleTag: Obstacle
   floorTag: Floor
---- !u!114 &4810488153716500750
+--- !u!114 &2478101849565633311
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4822662333796473275}
+  m_GameObject: {fileID: 8808844892487750604}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b7681f2743fd4159a5c8aebdf92d9761, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  decisionPeriod: 10
+  decisionPeriod: 70
   takeActionsBetweenDecisions: 0
---- !u!1001 &7594295455471964634
+--- !u!1001 &8463524218812007208
 PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
-    m_TransformParent: {fileID: 4822662333796473248}
+    m_TransformParent: {fileID: 8808844892487750615}
     m_Modifications:
     - target: {fileID: 5853364461969000752, guid: 9107b7ea12424ee43803746bcf03fd8b, type: 3}
       propertyPath: m_RootOrder
@@ -188,8 +188,8 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 9107b7ea12424ee43803746bcf03fd8b, type: 3}
---- !u!4 &4061974793921747178 stripped
+--- !u!4 &2616355642591037976 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 5853364461969000752, guid: 9107b7ea12424ee43803746bcf03fd8b, type: 3}
-  m_PrefabInstance: {fileID: 7594295455471964634}
+  m_PrefabInstance: {fileID: 8463524218812007208}
   m_PrefabAsset: {fileID: 0}

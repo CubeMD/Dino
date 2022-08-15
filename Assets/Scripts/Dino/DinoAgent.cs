@@ -1,4 +1,4 @@
-using MLDebugTool.Scripts.Agent;
+using AgentDebugTool.Scripts.Agent;
 using Obstacles;
 using Unity.MLAgents.Actuators;
 using Unity.MLAgents.Sensors;
@@ -7,7 +7,7 @@ using UnityEngine;
 namespace Dino
 {
     [RequireComponent(typeof(Rigidbody))]
-    public class DinoAgent : DebuggableAgent
+    public class DinoAgent : DebugAgent
     {
         protected const float LEVEL_WIDTH = 33f;
         protected const float DURATION_OF_JUMP = 2f;
@@ -123,7 +123,7 @@ namespace Dino
             }
             else
             {
-                AddReward(-0.1f);
+                AddReward(-0.01f);
                 RecordEpisodeStat("PerEpisode/InvalidJumps");
             }
         }
@@ -134,7 +134,7 @@ namespace Dino
             rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
             timeOfLastJump = Time.time;
             canJump = false;
-            AddReward(-0.01f);
+            //AddReward(-0.01f);
             RecordEpisodeStat("PerEpisode/ExecutedJumps");
         }
     

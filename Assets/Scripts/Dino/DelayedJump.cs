@@ -9,20 +9,26 @@ namespace Dino
     {
         public static event Action<DelayedJump> OnJumpDelayFinished;
           
-        private DinoAgentContinuous agent;
+        private DelayedDinoAgent agent;
         private Coroutine waitJumpRoutine;
-        private float timeOfExecution;
+        public float timeOfExecution;
         
-        public DelayedJump(DinoAgentContinuous dinoAgentContinuous, float delay)
+        public DelayedJump(DelayedDinoAgent delayedDinoAgent, float delay)
         {
-            agent = dinoAgentContinuous;
-            waitJumpRoutine = agent.StartCoroutine(WaitJumpRoutine(delay));
+            agent = delayedDinoAgent;
             timeOfExecution = Time.time + delay;
+            waitJumpRoutine = agent.StartCoroutine(WaitJumpRoutine(delay));
+            Debug.Log($"Scheduled at {Time.time}, delay {delay}");
+           // Debug.Log($"The jump has been scheduled at {Time.time} with delay of {delay}, should be executed at {timeOfExecution}");
         }
             
         private IEnumerator WaitJumpRoutine(float delay)
         {
-            yield return new WaitForSeconds(delay);
+            while (Time.time < timeOfExecution)
+            {
+                yield return null;
+            }
+            //yield return new WaitForSeconds(delay);
             OnJumpDelayFinished?.Invoke(this);
             waitJumpRoutine = null;
         }
@@ -36,6 +42,7 @@ namespace Dino
         {
             if(waitJumpRoutine != null)
             {
+               //Debug.Log("Jump terminated");
                 agent.StopCoroutine(waitJumpRoutine);
             }
         }

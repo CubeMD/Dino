@@ -27,6 +27,7 @@ namespace Tools
         {
             agent = GetComponent<Agent>();
             decisionPeriod = (int)Academy.Instance.EnvironmentParameters.GetWithDefault("decision_period", decisionPeriod);
+            // Debug.Log($"Decision period is {decisionPeriod}");
             Academy.Instance.AgentPreStep += MakeRequests;
         }
 
