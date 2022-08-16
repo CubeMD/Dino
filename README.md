@@ -17,7 +17,7 @@ Here is an [article](https://medium.com/@markelovdp/delayed-actions-in-reinforce
 
 ## Usage
 
-- The Environment Duplicator script is responsible for instancing the selected environment. (The number of environments is overridable from python). 
+- The Environment Duplicator script is responsible for instancing the selected environment (The number of environments is overridable from python). 
 
 ![EnvDup](/Images/EnvironmentDuplicator.png)
 
