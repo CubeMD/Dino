@@ -22,7 +22,7 @@ Here is an [article](https://medium.com/@markelovdp/delayed-actions-in-reinforce
 ![EnvDup](/Images/EnvironmentDuplicator.png)
 
 - Each environment prefab features an enclosed area and an agent.
-- To try out different pretrained models, add an environment into Environment Duplicator, add the desired model to the prefab of an agent and don't forget to change decision period to the appropriate value. 
+- To try out different pretrained models, add an environment into Environment Duplicator, add the desired model to the prefab of an agent and don't forget to change decision period to the appropriate value (The decision period is overridable from python). 
 
 ![Assets](/Images/Assets.png) ![Agent](/Images/Agent.png)
 
